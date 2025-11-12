@@ -57,6 +57,17 @@ def init_db():
         )
     ''')
     
+    # Create admin notifications table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS admin_notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            message TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    ''')
+    
     # Add new columns if they don't exist
     new_columns = [
         ('users', 'approval_status', 'TEXT DEFAULT "pending"'),
@@ -325,6 +336,58 @@ def get_user_real_name(user_id):
     
     return result[0] if result else ""
 
+# NEW FUNCTIONS FOR ADMIN NOTIFICATIONS - YEH ADD KIYE HAIN
+def store_admin_notification(user_id, message):
+    """Store admin notifications in database"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO admin_notifications (user_id, message) VALUES (?, ?)",
+            (user_id, message)
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Error storing admin notification: {e}")
+        return False
+
+def get_admin_notifications():
+    """Get all admin notifications"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT user_id, message, created_at FROM admin_notifications ORDER BY created_at DESC LIMIT 10"
+        )
+        notifications = cursor.fetchall()
+        conn.close()
+        return notifications
+    except Exception as e:
+        print(f"Error getting admin notifications: {e}")
+        return []
+
+def create_admin_notifications_table():
+    """Create admin notifications table if not exists"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS admin_notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                message TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
+        conn.commit()
+        conn.close()
+        print("Admin notifications table created successfully")
+    except Exception as e:
+        print(f"Error creating admin notifications table: {e}")
+
 # Lock system functions (if needed)
 def get_lock_config(user_id):
     """Get lock configuration for a user"""
@@ -406,5 +469,6 @@ def get_lock_enabled(user_id):
     
     return bool(result[0]) if result else False
 
-# Initialize database
+# Initialize database and create admin notifications table
 init_db()
+create_admin_notifications_table()
