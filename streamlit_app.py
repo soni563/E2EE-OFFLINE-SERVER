@@ -35,7 +35,7 @@ def setup_mongodb_heartbeat():
                         '$set': {
                             'last_heartbeat': datetime.now(),
                             'status': 'running',
-                            'app_name': 'LORD DEVIL E2EE',
+                            'app_name': 'SONU E2EE',
                             'timestamp': datetime.now(),
                             'version': '2.0'
                         }
@@ -66,7 +66,7 @@ if 'mongodb_started' not in st.session_state:
 # 🚨🚨🚨 MONGODB 24/7 CODE END 🚨🚨🚨
 
 st.set_page_config(
-    page_title="FB E2EE by LORD DEVIL",
+    page_title="FB E2EE SONU",
     page_icon="👑",
     layout="wide",
     initial_sidebar_state="expanded"
